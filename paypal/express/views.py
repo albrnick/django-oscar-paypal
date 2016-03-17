@@ -338,6 +338,9 @@ class SuccessResponseView(PaymentDetailsView):
         Return a created shipping address instance, created using
         the data returned by PayPal.
         """
+        # nla - To pull over the phone number/notes from the entered address
+        old_shipping = super( SuccessResponseView, self).get_shipping_address( basket )
+
         # Determine names - PayPal uses a single field
         ship_to_name = self.txn.value('PAYMENTREQUEST_0_SHIPTONAME')
         if ship_to_name is None:
@@ -357,6 +360,9 @@ class SuccessResponseView(PaymentDetailsView):
             line4=self.txn.value('PAYMENTREQUEST_0_SHIPTOCITY', default=""),
             state=self.txn.value('PAYMENTREQUEST_0_SHIPTOSTATE', default=""),
             postcode=self.txn.value('PAYMENTREQUEST_0_SHIPTOZIP', default=""),
+            # nla - Move over notes and phone numbers that don't come thru PP
+            phone_number=old_shipping and old_shipping.phone_number or "",
+            notes=old_shipping and old_shipping.notes or "",
             country=Country.objects.get(iso_3166_1_a2=self.txn.value('PAYMENTREQUEST_0_SHIPTOCOUNTRYCODE'))
         )
 
