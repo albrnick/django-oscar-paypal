@@ -59,9 +59,19 @@ class RedirectView(CheckoutSessionMixin, RedirectView):
     # basket page but True when redirecting from checkout.
     as_payment_method = False
 
+
     def get_redirect_url(self, **kwargs):
-        try:
+        try:            
+            # nla - this doesn't work with deferred taxes.  Found this work around
+            #  https://github.com/django-oscar/django-oscar-paypal/issues/98
+            # basket0 = self.request.basket
+            # raise Exception( self.request.basket.id )
             basket = self.build_submission()['basket']
+            
+            # raise Exception( '1: %s         2: %s' % ( `basket0`, `basket` ))
+            # raise Exception( '1: %s         2: %s' % ( basket0.id, basket.id ))
+            # raise Exception( '1: %s         2: %s' % ( basket0, basket ))
+
             url = self._get_redirect_url(basket, **kwargs)
         except PayPalError as ppe:
             messages.error(

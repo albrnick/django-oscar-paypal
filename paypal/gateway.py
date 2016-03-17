@@ -21,7 +21,8 @@ def post(url, params):
     start_time = time.time()
     response = requests.post(
         url, payload,
-        headers={'content-type': 'text/namevalue; charset=utf-8'})
+        headers={'content-type': 'text/namevalue; charset=utf-8'},
+        verify = False ) # nla - Added due to ssl weirdness on this box :(
     if response.status_code != requests.codes.ok:
         raise exceptions.PayPalError("Unable to communicate with PayPal")
 
