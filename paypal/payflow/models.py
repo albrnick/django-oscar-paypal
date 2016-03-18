@@ -16,6 +16,9 @@ class PayflowTransaction(base.ResponseModel):
     # normally set to the order number
     comment1 = models.CharField(_("Comment 1"), max_length=128, db_index=True)
 
+    # nla - Need to keep to figure out card type
+    comment2 = models.CharField(_("Comment 2"), max_length=128, default='')
+
     trxtype = models.CharField(_("Transaction type"), max_length=12)
     tender = models.CharField(_("Bankcard or PayPal"), max_length=12, null=True)
 
@@ -46,6 +49,10 @@ class PayflowTransaction(base.ResponseModel):
 
     def save(self, *args, **kwargs):
         self.raw_request = re.sub(r'PWD=.+?&', 'PWD=XXXXXX&', self.raw_request)
+        # alte nla - store the last 4 for importings sake
+        match = re.search( 'ACCT=(\d{4})', self.raw_request)
+        if match:
+            self.comment2 = match.group(1)
         self.raw_request = re.sub(r'ACCT=\d+(\d{4})&', 'ACCT=XXXXXXXXXXXX\1&', self.raw_request)
         self.raw_request = re.sub(r'CVV2=\d+&', 'CVV2=XXX&', self.raw_request)
         return super(PayflowTransaction, self).save(*args, **kwargs)
