@@ -295,6 +295,13 @@ class SuccessResponseView(PaymentDetailsView):
             return HttpResponseRedirect(reverse('basket:summary'))
 
         submission = self.build_submission(basket=basket)
+        # Get our other form datas in - alte nla
+        try:
+            order_kwargs = self._get_other_order_kwargs( request )
+            submission['order_kwargs'].update( order_kwargs )
+        except AttributeError:
+            pass
+
         return self.submit(**submission)
 
     def build_submission(self, **kwargs):
